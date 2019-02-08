@@ -1,0 +1,17 @@
+env: dev
+
+# Project structure
+views_folder: views
+cache_folder: /tmp/twig/gardn
+router_file: routes.php
+
+# Database info
+db_ms: mysql
+db_host: site-mysql
+db_name: gardn
+db_user: root
+db_pwd: gardn
+
+# Errors
+error_report_level: 1
+
