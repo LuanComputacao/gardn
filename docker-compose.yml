@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+    gardn-web:
+        build:
+            context: ./
+            dockerfile: nginx.Dockerfile
+        ports:
+            - "8088:80"
+        volumes:
+            - ./:/code
+            - ./gardn.nginx.conf:/etc/nginx/conf.d/gardn.conf
+            - templates-gardn:/tmp/twig/gardn
+        links:
+            - gardn-php
+        networks:
+            - gardn-network
+        depends_on:
+            - gardn-mysql
+            - gardn-php
+
+    gardn-php:
+        build:
+            context: ./
+            dockerfile: php-fpm.Dockerfile
+        volumes:
+            - ./:/code
+            - templates-gardn:/tmp/twig/gardn
+        command: /bin/sh -c "cd /code && composer install && php-fpm"
+        networks:
+            - gardn-network
+        depends_on:
+            - gardn-mysql
+
+    gardn-mysql:
+        build:
+            context: ./
+            dockerfile: mysql.Dockerfile
+        volumes:
+            - mysql-gardn:/var/lib/mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            - MYSQL_ROOT_PASSWORD=gardn
+            - MYSQL_DATABASE=gardn
+            - MYSQL_USER=gardn
+            - MYSQL_PASSWORD=gardn
+        networks:
+            - gardn-network
+
+volumes:
+    mysql-gardn:
+    templates-gardn:
+
+networks:
+    gardn-network:
+        driver: bridge
